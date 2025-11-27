@@ -1,4 +1,6 @@
 import { saveContact } from '../services/contact.services.js'
+import { enviarCorreoSES } from '../services/ses.service.js'
+import { getServerIp } from '../utils/getServerIp.js'
 
 export const guardarContactoController = async (req, res) => {
   try {
@@ -23,6 +25,26 @@ export const guardarContactoController = async (req, res) => {
 
     // Guardar en la BD
     const saved = await saveContact({ uuid, nombre, correo, telefono })
+
+    // Obtener la IP real del servidor
+    const serverIp = await getServerIp()
+
+    // Construir contenido del correo
+    const mensaje = `
+Hola ${nombre},
+Tu contacto fue registrado correctamente.
+
+UUID: ${uuid}
+Nombre: ${nombre}
+IP del servidor: ${serverIp}
+    `
+
+    // Enviar correo
+    await enviarCorreoSES({
+      to: correo,
+      subject: 'Notificación de registro',
+      text: mensaje,
+    })
 
     return res.status(201).json({
       message: 'Contacto guardado correctamente',
