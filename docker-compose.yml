@@ -1,0 +1,11 @@
+services:
+  api-mail:
+    container_name: api-mail-service
+    build:
+      context: .
+    image: api-mail-image
+    ports:
+      - '${EXPRESS_PORT}:${EXPRESS_PORT}'
+    env_file:
+      - .env
+    restart: always

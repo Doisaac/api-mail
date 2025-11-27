@@ -1,0 +1,35 @@
+services:
+  api-mail:
+    container_name: api-mail-service
+    build:
+      context: .
+    image: api-mail-image
+    ports:
+      - '${EXPRESS_PORT}:${EXPRESS_PORT}'
+    env_file:
+      - .env
+    depends_on:
+      api-mail-db:
+        condition: service_healthy
+    restart: always
+
+  api-mail-db:
+    image: postgres:18
+    ports:
+      - '5432:5432'
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d apimail_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_DB: apimail_db
+      POSTGRES_PASSWORD: apimail_pw
+      PGDATA: /var/lib/postgresql/18/docker
+    volumes:
+      - api-mail-volume:/var/lib/postgresql
+      - ./database:/docker-entrypoint-initdb.d
+
+volumes:
+  api-mail-volume:
