@@ -1,5 +1,6 @@
 import { saveContact } from '../services/contact.services.js'
 import { enviarCorreoSES } from '../services/ses.service.js'
+import { enviarSMS } from '../services/twilio.service.js'
 import { getServerIp } from '../utils/getServerIp.js'
 
 export const guardarContactoController = async (req, res) => {
@@ -44,6 +45,12 @@ IP del servidor: ${serverIp}
       to: correo,
       subject: 'Notificación de registro',
       text: mensaje,
+    })
+
+    // Enviar SMS
+    await enviarSMS({
+      to: telefono,
+      message: mensaje,
     })
 
     return res.status(201).json({
